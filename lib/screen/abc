@@ -1,0 +1,179 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+
+void main() => runApp(const MaterialApp(home: TheaterBookingPage()));
+
+class TheaterBookingPage extends StatefulWidget {
+  const TheaterBookingPage({super.key});
+
+  @override
+  State<TheaterBookingPage> createState() => _TheaterBookingPageState();
+}
+
+class _TheaterBookingPageState extends State<TheaterBookingPage> {
+  final List<String> dates = ['Tue, Jul 22', 'Wed, Jul 23', 'Thu, Jul 24', 'Fri, Jul 25'];
+  int selectedDateIndex = 0;
+  String selectedTime = "05:30 AM";
+  final timeError = true;
+
+  int selectedSeats = 3;
+  final int pricePerSeat = 30;
+
+  @override
+  Widget build(BuildContext context) {
+    final totalAmount = selectedSeats * pricePerSeat;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Book Now'),
+        backgroundColor: Colors.black,
+      ),
+      backgroundColor: const Color(0xFFF9FAFB),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text("📅 Select Date", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 40,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: dates.length,
+                itemBuilder: (context, index) {
+                  final isSelected = index == selectedDateIndex;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: ChoiceChip(
+                      label: Text(dates[index]),
+                      selected: isSelected,
+                      onSelected: (_) {
+                        setState(() {
+                          selectedDateIndex = index;
+                        });
+                      },
+                      selectedColor: Colors.lightBlueAccent,
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text("⏰ Select Time", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.access_time_outlined, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  selectedTime,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            if (timeError)
+              const Padding(
+                padding: EdgeInsets.only(top: 4),
+                child: Text(
+                  '*Invalid time\nPlease select a future time for today\'s booking',
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+              ),
+            const SizedBox(height: 20),
+
+            // Theater Card
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Stack(
+                alignment: Alignment.bottomLeft,
+                children: [
+                  Image.network(
+                    'https://i.ibb.co/MZkWYTX/theater-seats.jpg',
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text("🎭 Theatre Seating",
+                            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        Text("Premium theatre experience with comfortable seating",
+                            style: TextStyle(color: Colors.white70, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Seat Selection
+            const Text("🪑 Select Number of Seats", style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade300),
+              ),
+              child: Column(
+                children: [
+                  seatInfoRow("Total Seats", "100"),
+                  seatInfoRow("Price per Seat", "Rs. 30"),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const Text("Number of Seats", style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Spacer(),
+                      DropdownButton<int>(
+                        value: selectedSeats,
+                        items: List.generate(10, (index) => index + 1)
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e.toString())))
+                            .toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedSeats = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 20),
+                  seatInfoRow("🎟️ Selected Seats", "$selectedSeats"),
+                  seatInfoRow("💰 Total Amount:", "Rs. $totalAmount", bold: true),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget seatInfoRow(String title, String value, {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Text(title, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+          const Spacer(),
+          Text(value, style: TextStyle(fontWeight: bold ? FontWeight.bold : FontWeight.normal)),
+        ],
+      ),
+    );
+  }
+}
